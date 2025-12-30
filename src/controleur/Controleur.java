@@ -5,7 +5,9 @@ import java.util.List;
 
 import modele.classe.ClasseHero;
 import modele.classe.ClasseHeroFactory;
+import modele.combat.AttaqueStrategy;
 import modele.combat.CombatManager;
+import modele.combat.EventType;
 import modele.donjon.Donjon;
 import modele.donjon.GenerateurDonjon;
 import modele.donjon.Salle;
@@ -14,11 +16,13 @@ import modele.generation.GenerateurPnj;
 import modele.inventaire.Consommable;
 import modele.inventaire.Equipable;
 import modele.inventaire.Item;
+import modele.inventaire.ItemLegendaire;
 import modele.personnages.Hero;
 import modele.personnages.Pnj;
 import modele.theme.Theme;
 import modele.theme.ThemeFactory;
 import modele.theme.ThemeFactoryFuturiste;
+import modele.theme.ThemeFactoryHorreur;
 import modele.theme.ThemeFactoryMedieval;
 import vue.Ihm;
 
@@ -50,7 +54,11 @@ public class Controleur {
         };
         this.hero = new Hero(nomHero, classeHero);
         this.themeChoisi = ihm.demanderTheme();
-        this.themeFactory = (themeChoisi == Theme.FUTURISTE) ? new ThemeFactoryFuturiste() : new ThemeFactoryMedieval();
+        this.themeFactory = switch (themeChoisi) {
+            case FUTURISTE -> new ThemeFactoryFuturiste();
+            case HORREUR -> new ThemeFactoryHorreur();
+            default -> new ThemeFactoryMedieval();
+        };
         GenerateurPnj genPnj = new GenerateurPnj(themeFactory);
         GenerateurObjets genObj = new GenerateurObjets(themeFactory);
         this.generateurDonjon = new GenerateurDonjon(genPnj, genObj);
@@ -107,6 +115,7 @@ public class Controleur {
         }
         if (hero.estVivant()) {
             ihm.afficherMessage("Salle nettoyee.");
+            hero.notifierPassifs(EventType.FIN_COMBAT, null, null, ihm);
         }
     }
 
@@ -117,7 +126,17 @@ public class Controleur {
             return;
         }
         for (Item item : new ArrayList<>(items)) {
-            hero.getInventaire().ajouter(item);
+            if (item instanceof ItemLegendaire leg) {
+                hero.definirClasseSecondaire(leg.getClasseOctroyee());
+                if (leg.getPassifs() != null) {
+                    for (var p : leg.getPassifs()) {
+                        hero.ajouterPassif(p);
+                    }
+                }
+                ihm.afficherMessage("Objet legendaire obtenu: " + leg.getNom() + " -> nouvelle classe " + leg.getClasseOctroyee().getNom());
+            } else {
+                hero.getInventaire().ajouter(item);
+            }
         }
         items.clear();
         ihm.afficherMessage("Objets ajoutes a l'inventaire.");
@@ -127,16 +146,21 @@ public class Controleur {
         List<Pnj> ennemis = salle.getEnnemis();
         while (hero.estVivant() && contientEnnemisVivant(ennemis)) {
             ennemis.removeIf(p -> !p.estVivant());
-            if (ennemis.isEmpty()) {
-                break;
-            }
-            Pnj cible = ennemis.get(0); // on attaque toujours le premier vivant
+            if (ennemis.isEmpty()) break;
+            Pnj cible = ennemis.get(0);
             ihm.afficherEtatCombat(hero, ennemis);
-            int choix = ihm.choixActionCombat();
+            hero.notifierPassifs(EventType.DEBUT_TOUR, null, null, ihm);
+            int choix = ihm.choixActionCombat(hero.aClasseSecondaire());
             if (choix == 1) {
+                hero.choisirAttaquePrincipale();
                 combatManager.appliquerEffets(hero);
-                combatManager.attaquer(hero, cible);
-            } else if (choix == 2) {
+                combatManager.attaquer(hero, cible, hero.getAttaqueStrategy());
+            } else if (choix == 2 && hero.aClasseSecondaire()) {
+                hero.choisirAttaqueSecondaire();
+                combatManager.appliquerEffets(hero);
+                AttaqueStrategy strat = hero.getAttaqueStrategy();
+                combatManager.attaquer(hero, cible, strat);
+            } else if ((choix == 2 && !hero.aClasseSecondaire()) || choix == 3) {
                 afficherInventaireEtActions();
             } else {
                 ihm.afficherMessage("Choix invalide");
@@ -155,7 +179,7 @@ public class Controleur {
     private void afficherInventaireEtActions() {
         ihm.afficherInventaire(hero.getInventaire().getItems());
         afficherSlotsEquipes();
-        ihm.afficherMessage("1. Consommer un objet\n2. S'equiper\n3. Se desequiper\n4. Retour");
+        ihm.afficherMessage("1. Consommer un objet \n2. S'equiper \n3. Se desequiper \n4. Retour");
         int choix = ihm.demanderIndex("Votre choix", 4);
         switch (choix) {
             case 1 -> utiliserConsommable();
@@ -180,6 +204,7 @@ public class Controleur {
         Consommable choisi = conso.get(idx - 1);
         choisi.utiliser(hero);
         hero.getInventaire().retirer(choisi);
+        hero.notifierPassifs(EventType.UTILISATION_OBJET, null, null, ihm);
     }
 
     private void equiperObjet() {
@@ -199,6 +224,7 @@ public class Controleur {
         if (ancien != null) {
             hero.getInventaire().ajouter(ancien);
         }
+        hero.notifierPassifs(EventType.CHANGEMENT_ARME, null, null, ihm);
     }
 
     private void desequiperObjet() {

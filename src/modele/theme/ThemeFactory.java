@@ -2,6 +2,7 @@ package modele.theme;
 
 import modele.inventaire.Consommable;
 import modele.inventaire.Equipable;
+import modele.inventaire.Item;
 import modele.personnages.Pnj;
 
 public interface ThemeFactory {
@@ -9,4 +10,5 @@ public interface ThemeFactory {
     Consommable creerConsommableAleatoire();
     Equipable creerEquipableAleatoire();
     Pnj creerBoss();
+    Item creerItemLegendaire();
 }

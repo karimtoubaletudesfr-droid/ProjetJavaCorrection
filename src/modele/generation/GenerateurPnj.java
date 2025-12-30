@@ -7,6 +7,7 @@ import java.util.Random;
 import modele.personnages.Pnj;
 import modele.theme.ThemeFactory;
 import modele.theme.ThemeFactoryFuturiste;
+import modele.theme.ThemeFactoryHorreur;
 import modele.theme.ThemeFactoryMedieval;
 import modele.theme.TypePnj;
 
@@ -47,6 +48,13 @@ public class GenerateurPnj {
             if (r < 55) return TypePnj.ROBOT_SENTINELLE;
             if (r < 80) return TypePnj.ALIEN;
             return TypePnj.DRONE;
+        }
+        if (factory instanceof ThemeFactoryHorreur) {
+            int r = rng.nextInt(100);
+            if (r < 30) return TypePnj.VAMPIRE;
+            if (r < 55) return TypePnj.LOUP_GAROU;
+            if (r < 80) return TypePnj.SPECTRE;
+            return TypePnj.GOULE;
         }
         return TypePnj.CHEVALIER_ERRANT;
     }

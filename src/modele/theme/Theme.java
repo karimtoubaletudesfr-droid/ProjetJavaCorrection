@@ -1,3 +1,3 @@
 package modele.theme;
 
-public enum Theme { MEDIEVAL, FUTURISTE }
+public enum Theme { MEDIEVAL, FUTURISTE, HORREUR }

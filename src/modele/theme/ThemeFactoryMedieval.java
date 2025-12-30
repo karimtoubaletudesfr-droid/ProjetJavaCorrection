@@ -2,12 +2,15 @@ package modele.theme;
 
 import java.util.Random;
 
+import modele.classe.ClasseHeroFactory;
 import modele.combat.strategy.AttaquePhysique;
 import modele.inventaire.Aliment;
 import modele.inventaire.Armure;
 import modele.inventaire.Casque;
 import modele.inventaire.Consommable;
 import modele.inventaire.Equipable;
+import modele.inventaire.Item;
+import modele.inventaire.ItemLegendaire;
 import modele.inventaire.PotionForce;
 import modele.inventaire.PotionResistance;
 import modele.inventaire.PotionSoin;
@@ -15,6 +18,7 @@ import modele.personnages.Pnj;
 
 public class ThemeFactoryMedieval implements ThemeFactory {
     private final Random rng = new Random();
+    private final ClasseHeroFactory classeFactory = new ClasseHeroFactory();
 
     @Override
     public Pnj creerPnj(TypePnj type) {
@@ -54,5 +58,10 @@ public class ThemeFactoryMedieval implements ThemeFactory {
     @Override
     public Pnj creerBoss() {
         return new Pnj(TypePnj.BOSS, new AttaquePhysique(5), 220, 22, 14, 18, 8);
+    }
+
+    @Override
+    public Item creerItemLegendaire() {
+        return new ItemLegendaire("Grimoire maudit", classeFactory.creerSorcier(), java.util.List.of());
     }
 }

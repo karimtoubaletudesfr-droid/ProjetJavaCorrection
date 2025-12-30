@@ -35,8 +35,13 @@ public class Ihm {
         System.out.println("Choisissez un theme:");
         System.out.println("1. Medieval");
         System.out.println("2. Futuriste");
-        int choix = demanderIndex("Theme", 2);
-        return choix == 2 ? Theme.FUTURISTE : Theme.MEDIEVAL;
+        System.out.println("3. Horreur fantastique");
+        int choix = demanderIndex("Theme", 3);
+        return switch (choix) {
+            case 2 -> Theme.FUTURISTE;
+            case 3 -> Theme.HORREUR;
+            default -> Theme.MEDIEVAL;
+        };
     }
 
     public int choixMenuPrincipal() {
@@ -75,8 +80,14 @@ public class Ihm {
         return demanderIndex("Choix", 3);
     }
 
-    public int choixActionCombat() {
-        System.out.println("1. Attaquer le premier ennemi");
+    public int choixActionCombat(boolean aDeuxClasses) {
+        if (aDeuxClasses) {
+            System.out.println("1. Attaque classe principale");
+            System.out.println("2. Attaque classe secondaire");
+            System.out.println("3. Utiliser un objet");
+            return demanderIndex("Choix", 3);
+        }
+        System.out.println("1. Attaquer");
         System.out.println("2. Utiliser un objet");
         return demanderIndex("Choix", 2);
     }
@@ -125,7 +136,7 @@ public class Ihm {
         if (item instanceof modele.inventaire.Armure) return "#";
         if (item instanceof modele.inventaire.Casque) return "~";
         if (item instanceof modele.inventaire.Chaussures) return "-";
+        if (item instanceof modele.inventaire.ItemLegendaire) return "!";
         return "?";
     }
-
 }

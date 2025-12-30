@@ -4,11 +4,14 @@ import modele.classe.ClasseHero;
 import modele.inventaire.Equipable;
 import modele.inventaire.Equipement;
 import modele.inventaire.Inventaire;
+import modele.combat.PassiveSkill;
+import java.util.List;
 
 public class Hero extends Personnage {
     private final Inventaire inventaire = new Inventaire();
     private final Equipement equipement = new Equipement();
     private final ClasseHero classe;
+    private ClasseHero classeSecondaire;
 
     public Hero(String nom, ClasseHero classe) {
         this.nom = nom;
@@ -19,6 +22,7 @@ public class Hero extends Personnage {
         this.constitution = classe.getConstitution();
         this.intelligence = classe.getIntelligence();
         this.attaqueStrategy = classe.getAttaqueStrategy();
+        this.passifs.addAll(classe.getPassifs());
         Equipable equipInit = classe.getEquipementInitial();
         if (equipInit != null) {
             equipement.equiper(equipInit);
@@ -29,6 +33,23 @@ public class Hero extends Personnage {
             }
         }
     }
+
+    public void definirClasseSecondaire(ClasseHero c) {
+        this.classeSecondaire = c;
+        if (c != null) {
+            this.passifs.addAll(c.getPassifs());
+        }
+    }
+
+    public boolean aClasseSecondaire() { return classeSecondaire != null; }
+    public ClasseHero getClasseSecondaire() { return classeSecondaire; }
+
+    public Inventaire getInventaire() { return inventaire; }
+    public Equipement getEquipement() { return equipement; }
+    public ClasseHero getClasse() { return classe; }
+
+    public void choisirAttaquePrincipale() { setAttaqueStrategy(classe.getAttaqueStrategy()); }
+    public void choisirAttaqueSecondaire() { if (classeSecondaire != null) setAttaqueStrategy(classeSecondaire.getAttaqueStrategy()); }
 
     @Override
     public int getForce() {
@@ -49,8 +70,4 @@ public class Hero extends Personnage {
     public int getPvMax() {
         return super.getPvMax() + equipement.getBonusCons();
     }
-
-    public Inventaire getInventaire() { return inventaire; }
-    public Equipement getEquipement() { return equipement; }
-    public ClasseHero getClasse() { return classe; }
 }

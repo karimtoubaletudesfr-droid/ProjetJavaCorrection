@@ -18,6 +18,11 @@ public class GenerateurObjets {
     public List<Item> genererPourSalle() {
         int nb = rng.nextInt(3); // 0,1,2
         List<Item> res = new ArrayList<>();
+        // 10% chance of a legendary item
+        if (rng.nextInt(100) < 10) {
+            Item leg = factory.creerItemLegendaire();
+            if (leg != null) res.add(leg);
+        }
         for (int i = 0; i < nb; i++) {
             boolean prendreEquip = rng.nextInt(100) < 40; // 60% consommable, 40% equipable
             if (prendreEquip) {

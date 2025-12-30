@@ -10,5 +10,9 @@ public enum TypePnj {
     ROBOT_SENTINELLE,
     ALIEN,
     DRONE,
+    VAMPIRE,
+    LOUP_GAROU,
+    SPECTRE,
+    GOULE,
     BOSS
 }

@@ -1,8 +1,10 @@
 package modele.classe;
 
+import java.util.List;
 import modele.combat.AttaqueStrategy;
+import modele.combat.PassiveSkill;
 import modele.inventaire.Equipable;
-import vue.Ihm;
+
 public class ClasseHero {
     private final String nom;
     private final int pv;
@@ -12,10 +14,13 @@ public class ClasseHero {
     private final int intelligence;
     private final AttaqueStrategy attaqueStrategy;
     private final Equipable equipementInitial;
-    private final java.util.List<modele.inventaire.Item> itemsInitial;
+    private final List<modele.inventaire.Item> itemsInitial;
+    private final List<PassiveSkill> passifs;
 
-    public ClasseHero(String classeName, int pv, int force, int dexterite, int constitution, int intelligence, AttaqueStrategy attaqueStrategy, Equipable equipementInitial, java.util.List<modele.inventaire.Item> itemsInitial) {
-        this.nom =classeName;
+    public ClasseHero(String classeName, int pv, int force, int dexterite, int constitution, int intelligence,
+                      AttaqueStrategy attaqueStrategy, Equipable equipementInitial,
+                      List<modele.inventaire.Item> itemsInitial, List<PassiveSkill> passifs) {
+        this.nom = classeName;
         this.pv = pv;
         this.force = force;
         this.dexterite = dexterite;
@@ -24,6 +29,7 @@ public class ClasseHero {
         this.attaqueStrategy = attaqueStrategy;
         this.equipementInitial = equipementInitial;
         this.itemsInitial = itemsInitial;
+        this.passifs = passifs;
     }
 
     public String getNom() { return nom; }
@@ -34,5 +40,6 @@ public class ClasseHero {
     public int getIntelligence() { return intelligence; }
     public AttaqueStrategy getAttaqueStrategy() { return attaqueStrategy; }
     public Equipable getEquipementInitial() { return equipementInitial; }
-    public java.util.List<modele.inventaire.Item> getItemsInitial() { return itemsInitial; }
+    public List<modele.inventaire.Item> getItemsInitial() { return itemsInitial; }
+    public List<PassiveSkill> getPassifs() { return passifs; }
 }
